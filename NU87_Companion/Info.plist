@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleIdentifier</key><string>com.nucode.nu87companion</string>
+<key>CFBundleName</key><string>NU87 Companion</string>
+<key>CFBundleExecutable</key><string>NU87Companion</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>CFBundleVersion</key><string>1</string>
+<key>CFBundleShortVersionString</key><string>0.1</string>
+<key>LSMinimumSystemVersion</key><string>13.0</string>
+
+<key>NSBluetoothAlwaysUsageDescription</key><string>Connects to your NU87 keyboard to run its Mac actions.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>NU87 Companion uses your location only to find restaurants near you for the lunch picker.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>NU87 Companion uses your location only to find restaurants near you for the lunch picker.</string>
+</dict></plist>

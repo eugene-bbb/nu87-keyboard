@@ -1,0 +1,55 @@
+# NU87-TinyDK 9-key wiring
+
+## Conflict-checked allocation
+
+| Function | RTL8720DF pin | Header | Note |
+|---|---:|---:|---|
+| RGB G / R / B | PA12 / PA13 / PA14 | P1-1 / P1-2 / P1-3 | Onboard, active HIGH; software PWM because PA14 has no PWM |
+| USB-UART TX / RX | PA7 / PA8 | P2-16 / P2-15 | Keep for `Serial`; onboard CP2102 |
+| Matrix rows R0/R1/R2 | PB1 / PB2 / PB23 | P2-6 / P2-5 / P2-13 | Scan as LOW output, otherwise high impedance |
+| Matrix cols C0/C1/C2 | PA15 / PA27 / PB3 | P1-4 / P1-5 / P2-7 | Input pull-up |
+| TFT MOSI / SCK / CS / DC | PB18 / PB20 / PB21 / PA28 | P2-10 / P2-8 / P2-9 / P1-8 | Reserved; software SPI only in this allocation |
+| TFT RST | NU87_RESET | P2-14 or P3-4 | Hard-wire; saves one GPIO |
+| KY-040 CLK / DT / SW | PB19 / PB22 / PA30 | P2-11 / P2-12 / P1-6 | Reserved; 3.3 V only, `INPUT_PULLUP` |
+
+Do not use PA28 for native USB while it is TFT DC. PA27/PB3 are SWD pins;
+`pinMode()` disables SWD. PA27 is also connected to onboard SW3, so pressing
+SW3 appears as a matrix-column press. PA30 has an on-module 10 kohm pull-up,
+which is suitable for the future encoder switch.
+
+The AmebaD hardware `SPI` instance occupies PB18=MOSI, PB19=MISO, PB20=SCK and
+PB21=SS. That conflicts with KY-040 CLK on PB19. With no expander and all three
+encoder signals required, use a TFT library/configuration that supports
+write-only software SPI on the four reserved TFT pins. Hardware SPI would need
+one more GPIO (or removal of KY-040 SW, a GPIO expander, or matrix diodes plus a
+different multiplexing design). Never silently select hardware SPI here.
+
+## Switch matrix
+
+| | C0 PA15 (P1-4) | C1 PA27 (P1-5) | C2 PB3 (P2-7) |
+|---|---|---|---|
+| R0 PB1 (P2-6) | SW1 | SW2 | SW3 |
+| R1 PB2 (P2-5) | SW4 | SW5 | SW6 |
+| R2 PB23 (P2-13) | SW7 | SW8 | SW9 |
+
+For each 2-pin switch, connect one terminal to its row and the other to its
+column. No terminal goes directly to GND or 3V3. With no per-switch diodes,
+multi-key patterns spanning both multiple rows and multiple columns are
+electrically ambiguous; the sketch reports `GHOST_BLOCK` and turns the LED off.
+Multiple keys in a single row or column are accepted and the lowest SW number
+wins.
+
+## Checks
+
+1. With power off, verify no matrix wire is shorted to 3V3/GND and PA28 is not
+   about 12 kohm to GND. If it is, inspect the USB-mode resistor population
+   before using PA28 as TFT DC.
+2. Compile for `realtek:AmebaD:Ameba_AMB25`, upload, and open Serial Monitor at
+   115200 baud. Expect `NU87_9KEY_READY`.
+3. Hold SW1..SW9 one at a time. Expect the specified fixed colour and one
+   `SWn #RRGGBB` line; release must blank the LED within one 3 ms scan frame.
+4. Hold two keys in the same row/column: the lower number wins. Test a rectangle
+   pattern: expect `GHOST_BLOCK` and LED off, never a phantom colour.
+5. If colours are swapped, stop and recheck the board revision/schematic. This
+   schematic drives a common-cathode RGB through non-inverting buffers, so
+   PA12=G, PA13=R, PA14=B and HIGH means on.
