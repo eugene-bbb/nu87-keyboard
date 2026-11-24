@@ -8,14 +8,14 @@
 | USB-UART TX / RX | PA7 / PA8 | P2-16 / P2-15 | Keep for `Serial`; onboard CP2102 |
 | Matrix rows R0/R1/R2 | PB1 / PB2 / PB23 | P2-6 / P2-5 / P2-13 | Scan as LOW output, otherwise high impedance |
 | Matrix cols C0/C1/C2 | PA15 / PA27 / PB3 | P1-4 / P1-5 / P2-7 | Input pull-up |
-| TFT MOSI / SCK / CS / DC | PB18 / PB20 / PB21 / PA28 | P2-10 / P2-8 / P2-9 / P1-8 | Reserved; software SPI only in this allocation |
+| TFT MOSI / SCK / CS / DC | PB18 / PB20 / PB21 / PA30 (D4) | P2-10 / P2-8 / P2-9 / P1-6 | Reserved; software SPI only in this allocation |
 | TFT RST | NU87_RESET | P2-14 or P3-4 | Hard-wire; saves one GPIO |
-| KY-040 CLK / DT / SW | PB19 / PB22 / PA30 | P2-11 / P2-12 / P1-6 | Reserved; 3.3 V only, `INPUT_PULLUP` |
+| KY-040 CLK / DT / SW | PB19 / PB22 / PA28 | P2-11 / P2-12 / P1-8 | Reserved; 3.3 V only, `INPUT_PULLUP` |
 
-Do not use PA28 for native USB while it is TFT DC. PA27/PB3 are SWD pins;
+Do not use PA28 for native USB while it is the KY-040 SW. PA27/PB3 are SWD pins;
 `pinMode()` disables SWD. PA27 is also connected to onboard SW3, so pressing
-SW3 appears as a matrix-column press. PA30 has an on-module 10 kohm pull-up,
-which is suitable for the future encoder switch.
+SW3 appears as a matrix-column press. PA30 (TFT DC, D4) has an on-module 10 kohm pull-up and is a power-on
+strap pin: the LCD DC input must not pull it low at power-up.
 
 The AmebaD hardware `SPI` instance occupies PB18=MOSI, PB19=MISO, PB20=SCK and
 PB21=SS. That conflicts with KY-040 CLK on PB19. With no expander and all three
@@ -43,7 +43,7 @@ wins.
 
 1. With power off, verify no matrix wire is shorted to 3V3/GND and PA28 is not
    about 12 kohm to GND. If it is, inspect the USB-mode resistor population
-   before using PA28 as TFT DC.
+   before using PA28 as the encoder switch.
 2. Compile for `realtek:AmebaD:Ameba_AMB25`, upload, and open Serial Monitor at
    115200 baud. Expect `NU87_9KEY_READY`.
 3. Hold SW1..SW9 one at a time. Expect the specified fixed colour and one
