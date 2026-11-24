@@ -2,7 +2,7 @@
   NU87-TinyDK 3x3 키 매트릭스 + 온보드 RGB LED
 
   매트릭스:
-                  C0 PB20       C1 PA27       C2 PB3
+                  C0 PB22       C1 PA27       C2 PB3
     R0 PB1        SW1           SW2           SW3
     R1 PB2        SW4           SW5           SW6
     R2 PB23       SW7           SW8           SW9
@@ -254,7 +254,7 @@ void setup()
 
   Serial.println("NU87_9KEY_RGB_READY");
   Serial.println("ROWS=PB1,PB2,PB23");
-  Serial.println("COLS=PB20,PA27,PB3");
+  Serial.println("COLS=PB22,PA27,PB3");
 }
 
 void loop()

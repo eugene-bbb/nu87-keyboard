@@ -4,7 +4,7 @@
   The TFT stays on the verified PB18/PB20 GPIO-register software SPI path.
   No SPI0, DMA, or pinmux change is made here.
 
-  Serial companion protocol (one LF-terminated ASCII record):
+  Companion protocol over BLE Nordic UART (one LF-terminated ASCII record):
     TIME,HH,MM,WEEKDAY(0=Sun),DAY,MONTH(0=Jan)
     WX,clear|clouds|rain|snow,TEMP_C,CITY
     AI,claude|codex,disconnected|idle|thinking|done|error
