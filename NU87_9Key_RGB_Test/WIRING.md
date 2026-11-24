@@ -7,10 +7,11 @@
 | RGB G / R / B | PA12 / PA13 / PA14 | P1-1 / P1-2 / P1-3 | Onboard, active HIGH; software PWM because PA14 has no PWM |
 | USB-UART TX / RX | PA7 / PA8 | P2-16 / P2-15 | Keep for `Serial`; onboard CP2102 |
 | Matrix rows R0/R1/R2 | PB1 / PB2 / PB23 | P2-6 / P2-5 / P2-13 | Scan as LOW output, otherwise high impedance |
-| Matrix cols C0/C1/C2 | PA15 / PA27 / PB3 | P1-4 / P1-5 / P2-7 | Input pull-up |
-| TFT MOSI / SCK / CS / DC | PB18 / PB20 / PB21 / PA30 (D4) | P2-10 / P2-8 / P2-9 / P1-6 | Reserved; software SPI only in this allocation |
+| Matrix cols C0/C1/C2 | PB22 / PA27 / PB3 | P2-12 / P1-5 / P2-7 | Input pull-up |
+| TFT MOSI / SCK / DC | PB18 / PB20 / PA30 (D4) | P2-10 / P2-8 / P1-6 | Software SPI only (GPIO register path) |
+| TFT CS | GND | GND | Tied low, no GPIO used |
 | TFT RST | NU87_RESET | P2-14 or P3-4 | Hard-wire; saves one GPIO |
-| KY-040 CLK / DT / SW | PB19 / PB22 / PA28 | P2-11 / P2-12 / P1-8 | Reserved; 3.3 V only, `INPUT_PULLUP` |
+| KY-040 CLK / DT / SW | PB19 / PB21 / PA28 | P2-11 / P2-9 / P1-8 | Reserved; 3.3 V only, `INPUT_PULLUP` |
 
 Do not use PA28 for native USB while it is the KY-040 SW. PA27/PB3 are SWD pins;
 `pinMode()` disables SWD. PA27 is also connected to onboard SW3, so pressing
@@ -18,15 +19,36 @@ SW3 appears as a matrix-column press. PA30 (TFT DC, D4) has an on-module 10 kohm
 strap pin: the LCD DC input must not pull it low at power-up.
 
 The AmebaD hardware `SPI` instance occupies PB18=MOSI, PB19=MISO, PB20=SCK and
-PB21=SS. That conflicts with KY-040 CLK on PB19. With no expander and all three
-encoder signals required, use a TFT library/configuration that supports
-write-only software SPI on the four reserved TFT pins. Hardware SPI would need
-one more GPIO (or removal of KY-040 SW, a GPIO expander, or matrix diodes plus a
-different multiplexing design). Never silently select hardware SPI here.
+PB21=SS. That conflicts with KY-040 CLK on PB19 and DT on PB21, so the TFT uses
+write-only software SPI on PB18/PB20/PA30 with CS tied to GND. Never silently
+select hardware SPI here.
+
+## LCD (ST7796S) pins
+
+| LCD pin | NU87-TinyDK GPIO | Board header |
+|---|---|---|
+| VCC | 3.3 V | 3.3 V |
+| GND | GND | GND |
+| SCK / CLK | PB20 | P2-8 |
+| SDA / MOSI | PB18 | P2-10 |
+| DC / RS | PA30 (D4) | P1-6 |
+| CS | GND | GND |
+| RST / RESET | NU87_RESET | P2-14 |
+| BL / LED | 3.3 V | 3.3 V |
+
+## Rotary encoder (KY-040) pins
+
+| Encoder pin | NU87-TinyDK GPIO | Function |
+|---|---|---|
+| CLK | PB19 | Rotation signal A |
+| DT | PB21 | Rotation signal B |
+| SW | PA28 | Knob click |
+| + | 3.3 V | Power (never 5 V) |
+| GND | GND | Ground |
 
 ## Switch matrix
 
-| | C0 PA15 (P1-4) | C1 PA27 (P1-5) | C2 PB3 (P2-7) |
+| | C0 PB22 (P2-12) | C1 PA27 (P1-5) | C2 PB3 (P2-7) |
 |---|---|---|---|
 | R0 PB1 (P2-6) | SW1 | SW2 | SW3 |
 | R1 PB2 (P2-5) | SW4 | SW5 | SW6 |
